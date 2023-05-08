@@ -10,6 +10,7 @@ fastapi, uvicorn, pandas, xlsxwriter, plotly, kaleido
 ```
 python main.py
 ```
+![1](https://user-images.githubusercontent.com/126104168/236733563-154903f8-af6f-4abc-a179-367f719a308f.png)
 
 ***
 
