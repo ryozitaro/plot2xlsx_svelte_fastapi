@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>csv_xlsx</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='index.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="{{ url_for('static', path='graph.webp') }}">
+    <link rel="icon" href="{{ url_for('static', path='favicon.ico') }}">
+    <script src="{{ url_for('static', path='index.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist@2.22.0/plotly-basic.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/bignumber.js@9.1.0/bignumber.min.js'></script>
+</head>
+
+<body>
+    <h1>plot2xlsx_fastapi</h1>
+    <!--グラフ、データ入力-->
+    <div class="card">
+        <!--グラフブロック-->
+        <div id="graph_block">
+            <div id="graph">
+                <script>
+                    Plotly.newPlot("graph", { layout: { paper_bgcolor: "#eee" }, config: { responsive: true, displayModeBar: false } })
+                </script>
+            </div>
+            <div id="sheet_ctrl" data-page_num="0">
+                <button id="delete" class="button" onclick="deleteSheet()" disabled>シート消去</button>
+                <button id="back" class="button" onclick="backSheet()" disabled>←</button>
+                <span id="indicator_block"><span id="selected_indicator"></span></span>
+                <button id="forward" class="button" onclick="forwardSheet()" disabled>→</button>
+                <button id="add_sheet" class="button" onclick="addSheet()">シート追加</button>
+            </div>
+        </div>
+        <!--データ入力ブロック-->
+        <div>
+            <!--ドロップダウン-->
+            <div class="input_block">
+                <form id="wave_form" name="wave_select" onchange="getData()">
+                    <select id="p_num" name="p_wave_select">
+                        <option selected hidden value="">P波データ</option>
+                        {% for value in csv_dirs_nums %}
+                        <option value="{{ value }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="s_num" name="s_wave_select">
+                        <option selected hidden value="">S波データ</option>
+                        {% for value in csv_dirs_nums %}
+                        <option value="{{ value }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            <!--供試体高さ-->
+            <div class="input_block">
+                供試体高さ: <input id="spe_height" type="number" oninput="spe_heightOninput(this.value)" required>[cm]
+            </div>
+            <!--P波入力-->
+            <div class="input_block">
+                P init t: <input id="p_init_t" type="number" placeholder="P波の初期補正値" oninput="initOninput(this)"
+                    required>[s]
+                <p>P in t:<span id="p_in_t"></span></p>
+                <p>P out t:<span id="p_out_t"></span></p>
+                <p>P Δt:<span id="p_delta_t"></span></p>
+                <p>P V:<span id="p_v"></span></p>
+            </div>
+            <!--S波入力-->
+            <div class="input_block">
+                S init t: <input id="s_init_t" type="number" placeholder="S波の初期補正値" oninput="initOninput(this)"
+                    required>[s]
+                <p>S in t:<span id="s_in_t"></span></p>
+                <p>S out t:<span id="s_out_t"></span></p>
+                <p>S Δt:<span id="s_delta_t"></span></p>
+                <p>S V:<span id="s_v"></span></p>
+            </div>
+            <!--ポアソン比-->
+            <div class="input_block">
+                ポアソン比:<span id="poi"></span>
+            </div>
+            <!--A1入力-->
+            <div class="input_block">
+                A1: <input id="a1" type="text" placeholder="シートのA1に入れる情報" oninput="a1Oninput(this.value)">
+            </div>
+        </div>
+    </div>
+    <br>
+    <!--ファイル名、保存ボタン-->
+    <div id="save_card" class="card">
+        <form id="save_form" onsubmit="saveButton(); return false">
+            ファイル名:
+            <input id="save_file_name" type="text" required>
+            .xlsx
+            <div id="save">
+                <button class="button">保存</button>
+                <div id="waiting_anim" class="waiting"></div>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>
