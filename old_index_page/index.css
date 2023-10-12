@@ -1,0 +1,132 @@
+body,
+input,
+select,
+button {
+    font-family: 'BIZ UDPGothic', sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+.card {
+    padding: 2em 1em;
+    border-radius: 2em;
+    box-shadow: 0 0 0.5em #0003;
+    display: flex;
+}
+
+#graph_block {
+    margin-right: 1vw;
+}
+
+#graph {
+    width: 70vw;
+    height: 80vh;
+}
+
+#sheet_ctrl {
+    width: 70vw;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    justify-items: center;
+    align-items: center;
+    margin-top: 1em;
+}
+
+#indicator_block,
+#save_card,
+#save_form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.indicator {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    background-color: #4cac97;
+    margin: 0em 0.3em;
+}
+
+#selected_indicator {
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    border-radius: 50%;
+    background-color: #4cac97;
+    outline: solid 0.13em #4cac97;
+    outline-offset: 0.2em;
+    margin: 0em 0.4em;
+}
+
+.button {
+    cursor: pointer;
+    padding: 0.25em 0.5em;
+    font-size: 1.5em;
+    border: 0.13em solid #4cac97;
+    background: #4cac97;
+    color: #fff;
+    border-radius: 1em;
+    transition: 0.1s;
+}
+
+.button:hover {
+    color: #4cac97;
+    background: #0000;
+}
+
+#delete {
+    border-color: #f04;
+    background: #f04;
+}
+
+#delete:hover {
+    color: #f04;
+    background: #0000;
+}
+
+select {
+    width: 8em;
+}
+
+input,
+.input_block span {
+    margin-inline: 1em;
+}
+
+.button:disabled,
+#delete:disabled {
+    cursor: default;
+    color: #666;
+    border: 0.13em solid #999;
+    background-color: #ccc;
+}
+
+.input_block {
+    margin-block: 2em;
+}
+
+.input_block form {
+    display: flex;
+    height: 1.5em;
+}
+
+#save {
+    margin-inline-start: 2em;
+    visibility: visible;
+    position: relative;
+}
+
+.waiting {
+    background-image: url("graph.webp");
+    background-size: contain;
+    background-repeat: no-repeat;
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+}

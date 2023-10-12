@@ -1,0 +1,23 @@
+services:
+
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    ports:
+      - "50128:50128"
+    volumes:
+      - ./frontend/app:/app
+    tty: true
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    ports:
+      - "50512:50512"
+    volumes:
+      - ./backend/app:/app
+    tty: true

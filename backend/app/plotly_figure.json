@@ -1,0 +1,269 @@
+{
+    "data": [
+        {
+            "line": {
+                "color": "blue"
+            },
+            "type": "scatter",
+            "mode": "lines",
+            "xaxis": "x",
+            "yaxis": "y"
+        },
+        {
+            "line": {
+                "color": "blue"
+            },
+            "type": "scatter",
+            "mode": "lines",
+            "xaxis": "x2",
+            "yaxis": "y2"
+        },
+        {
+            "line": {
+                "color": "blue"
+            },
+            "type": "scatter",
+            "mode": "lines",
+            "xaxis": "x3",
+            "yaxis": "y3"
+        },
+        {
+            "line": {
+                "color": "blue"
+            },
+            "type": "scatter",
+            "mode": "lines",
+            "xaxis": "x4",
+            "yaxis": "y4"
+        }
+    ],
+    "layout": {
+        "annotations": [
+            {
+                "font": {
+                    "size": 20
+                },
+                "showarrow": false,
+                "x": 0.5,
+                "xanchor": "center",
+                "xref": "x domain",
+                "y": 1,
+                "yanchor": "bottom",
+                "yref": "y domain"
+            },
+            {
+                "font": {
+                    "size": 20
+                },
+                "showarrow": false,
+                "x": 0.5,
+                "xanchor": "center",
+                "xref": "x2 domain",
+                "y": 1,
+                "yanchor": "bottom",
+                "yref": "y2 domain"
+            },
+            {
+                "font": {
+                    "size": 20
+                },
+                "showarrow": false,
+                "x": 0.5,
+                "xanchor": "center",
+                "xref": "x3 domain",
+                "y": 1,
+                "yanchor": "bottom",
+                "yref": "y3 domain"
+            },
+            {
+                "font": {
+                    "size": 20
+                },
+                "showarrow": false,
+                "x": 0.5,
+                "xanchor": "center",
+                "xref": "x4 domain",
+                "y": 1,
+                "yanchor": "bottom",
+                "yref": "y4 domain"
+            }
+        ],
+        "shapes": [
+            {
+                "line": {
+                    "color": "red",
+                    "width": 2
+                },
+                "type": "line",
+                "xref": "x",
+                "y0": 0,
+                "y1": 1,
+                "yref": "y domain"
+            },
+            {
+                "line": {
+                    "color": "red",
+                    "width": 2
+                },
+                "type": "line",
+                "xref": "x2",
+                "y0": 0,
+                "y1": 1,
+                "yref": "y2 domain"
+            },
+            {
+                "line": {
+                    "color": "red",
+                    "width": 2
+                },
+                "type": "line",
+                "xref": "x3",
+                "y0": 0,
+                "y1": 1,
+                "yref": "y3 domain"
+            },
+            {
+                "line": {
+                    "color": "red",
+                    "width": 2
+                },
+                "type": "line",
+                "xref": "x4",
+                "y0": 0,
+                "y1": 1,
+                "yref": "y4 domain"
+            }
+        ],
+        "paper_bgcolor": "#eee",
+        "plot_bgcolor": "#fff",
+        "font": {
+            "family": "BIZ UDPGothic",
+            "size": 16,
+            "color": "#000"
+        },
+        "grid": {
+            "rows": 2,
+            "columns": 2,
+            "pattern": "independent"
+        },
+        "margin": {
+            "t": 35,
+            "b": 35,
+            "l": 80,
+            "r": 20
+        },
+        "showlegend": false,
+        "xaxis": {
+            "anchor": "y",
+            "domain": [
+                0.0,
+                0.47
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "s"
+        },
+        "xaxis2": {
+            "anchor": "y2",
+            "domain": [
+                0.53,
+                1.0
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "s"
+        },
+        "xaxis3": {
+            "anchor": "y3",
+            "domain": [
+                0.0,
+                0.47
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "s"
+        },
+        "xaxis4": {
+            "anchor": "y4",
+            "domain": [
+                0.53,
+                1
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "s"
+        },
+        "yaxis": {
+            "anchor": "x",
+            "domain": [
+                0.54,
+                1.0
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "V",
+            "exponentformat": "SI",
+            "minexponent": 2
+        },
+        "yaxis2": {
+            "anchor": "x2",
+            "domain": [
+                0.54,
+                1.0
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "V",
+            "exponentformat": "SI",
+            "minexponent": 2
+        },
+        "yaxis3": {
+            "anchor": "x3",
+            "domain": [
+                0.0,
+                0.46
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "V",
+            "exponentformat": "SI",
+            "minexponent": 2
+        },
+        "yaxis4": {
+            "anchor": "x4",
+            "domain": [
+                0.0,
+                0.46
+            ],
+            "zeroline": false,
+            "linewidth": 1,
+            "linecolor": "black",
+            "mirror": "allticks",
+            "gridcolor": "#ddd",
+            "ticksuffix": "V",
+            "exponentformat": "SI",
+            "minexponent": 2
+        }
+    }
+}

@@ -1,26 +1,26 @@
-import io
-from itertools import product
+from io import BytesIO
+from typing import Final
 
+from brotli import decompress
 import pandas as pd
-import plotly.graph_objs as go
 import xlsxwriter as xw
-from plotly.subplots import make_subplots
-from xlsxwriter.utility import xl_cell_to_rowcol, xl_rowcol_to_cell
+from orjson import loads
+from plotly.graph_objs import Figure
 from xlsxwriter.chart_scatter import ChartScatter
 from xlsxwriter.format import Format
+from xlsxwriter.utility import xl_cell_to_rowcol, xl_rowcol_to_cell
 
-import calc
-import sel_idx
-from directory_select import dir_select
-from models import PageData
+from xlsx import calc
+from xlsx import sel_idx
+from schema_pagedata import SheetData
 
-SEL_DF_ROW_NUM = {"P": 2, "S": 3}
+SEL_DF_ROW_NUM: Final[dict[str, int]] = {"P": 2, "S": 3}
 
 
 class XlsxOut:
-    def __init__(self):
-        self.xlsx = io.BytesIO()
-        self.wb = xw.Workbook(self.xlsx)
+    def __init__(self, buffer: BytesIO, fig: Figure):
+        self.wb = xw.Workbook(buffer)
+        self.fig = fig
 
     def close(self):
         self.wb.close()
@@ -30,12 +30,6 @@ class XlsxOut:
 
     def __exit__(self, ex_type, ex_value, traceback):
         self.close()
-
-    def get_xlsx(self) -> bytes:
-        """
-        closeしたあと、このメソッドでxlsxのbytesが取得できます。
-        """
-        return self.xlsx.getvalue()
 
     def _cell_judge(self, cell: str | tuple[int, int]) -> tuple[int, int]:
         """
@@ -52,7 +46,7 @@ class XlsxOut:
         self, cell: str | tuple[int, int], p_or_s: str, df: pd.DataFrame
     ) -> None:
         """
-        入力したcsvデータをファイル名とともにxlsxに貼り付けます。
+        指定したcsvデータをファイル名とともにxlsxに貼り付けます。
         """
         row, col = self._cell_judge(cell)
 
@@ -157,7 +151,7 @@ class XlsxOut:
         row, col = self._cell_judge(cell)
 
         # 書き込みデータの用意
-        sel_df.rename(columns=sel_idx.change_name, index=str.upper, inplace=True)
+        sel_df = sel_df.rename(columns=sel_idx.change_name, index=str.upper)
         data = sel_df.reindex_like(sel_idx.SEL_DF).reset_index(names="").items()
 
         # 書き込まれるセルの特定
@@ -195,82 +189,71 @@ class XlsxOut:
             col += 1
 
     def _plot_img(
-        self, sel_df: pd.DataFrame, p_df: pd.DataFrame, s_df: pd.DataFrame
-    ) -> io.BytesIO:
-        ps_df = p_df.join(s_df)
-        titles = ps_df.columns
-        ps_in_out = sel_df[["in_t", "out_t"]].values.flatten()
+        self, sel_df: pd.DataFrame, df_p: pd.DataFrame, df_s: pd.DataFrame
+    ) -> bytes:
+        df_ps = df_p.join(df_s)
+        titles = df_ps.columns
+        # グラフ上で選択した（縦線）値たち
+        selected_ps_in_out = sel_df[["in_t", "out_t"]].values.flatten()
 
-        fig = make_subplots(
-            rows=2,
-            cols=2,
-            horizontal_spacing=0.07,
-            vertical_spacing=0.07,
-            subplot_titles=titles,
-        )
+        for i in range(4):
+            self.fig.data[i].x = df_ps.index
+            self.fig.data[i].y = df_ps[titles[i]]
+            self.fig.layout.annotations[i].text = titles[i]
+            self.fig.layout.shapes[i].x0 = selected_ps_in_out[i]
+            self.fig.layout.shapes[i].x1 = selected_ps_in_out[i]
 
-        for col_name, select, (row, col) in zip(
-            titles, ps_in_out, product(range(1, 3), range(1, 3))
-        ):
-            fig.add_trace(
-                go.Scatter(x=ps_df.index, y=ps_df[col_name], line_color="blue"),
-                row,
-                col,
-            )
-            fig.add_vline(select, row, col, line_width=2, line_color="red")
-        fig.update_layout(
-            showlegend=False,
-            margin=dict(t=35, b=35, l=60, r=20),
-            font=dict(family="BIZ UDPGothic", size=16, color="#000"),
-            paper_bgcolor="#eee",
-            plot_bgcolor="#fff",
-        )
-        fig.update_annotations(font_size=20)
-        fig.update_xaxes(
-            zeroline=False,
-            linecolor="black",
-            mirror="allticks",
-            gridcolor="#d0d0d0",
-        )
-        fig.update_yaxes(
-            zeroline=False,
-            linecolor="black",
-            mirror="allticks",
-            gridcolor="#d0d0d0",
-        )
-        return io.BytesIO(fig.to_image(format="png", width=1440, height=960))
+        return self.fig.to_image(format="png", width=1440, height=960)
 
-    def main_write(self, sheet: PageData) -> None:
-        p_folder = dir_select(sheet.p_num)
-        s_folder = dir_select(sheet.s_num)
-        sel_df = pd.DataFrame(sheet.selected.dict())
-        img = self._plot_img(sel_df, p_folder.df, s_folder.df)
+    def to_df(self, comp: bytes) -> pd.DataFrame:
+        json = decompress(comp)
+        data_dict = loads(json)
+        data = data_dict["data"]
+        return pd.DataFrame({**data[0], **data[1]}, index=data_dict["time"])
 
+    def sheet_write(self, sheet: SheetData) -> None:
         self.ws = self.wb.add_worksheet()
         ws = self.ws
 
-        ws.write("A1", sheet.a1)
+        df_p = self.to_df(sheet.db_data.measured.p)
+        df_s = self.to_df(sheet.db_data.measured.s)
 
+        # A1
+        ws.write("A1", sheet.page_data.a1)
+
+        # P波BMP画像
         ws.write("A2", "P波")
         ws.insert_image(
-            "A3", "", {"image_data": p_folder.bmp, "x_scale": 0.8, "y_scale": 0.8}
+            "A3", sheet.db_data.img_path.p, {"x_scale": 0.8, "y_scale": 0.8}
         )
-        ws.write("E2", "P波")
+        # S波BMP画像
+        ws.write("E2", "S波")
         ws.insert_image(
-            "E3", "", {"image_data": s_folder.bmp, "x_scale": 0.8, "y_scale": 0.8}
+            "E3", sheet.db_data.img_path.s, {"x_scale": 0.8, "y_scale": 0.8}
         )
 
-        self._write_file_data("J1", "P", p_folder.df)
-        self._write_file_data("N1", "S", s_folder.df)
+        # P波DataFrame
+        self._write_file_data("J1", "P", df_p)
+        # S波DataFrame
+        self._write_file_data("N1", "S", df_s)
 
+        # P波グラフ
         ws.write("A16", "P波")
-        chart = self._create_chart("K2", len(p_folder.df))
+        chart = self._create_chart("K2", len(df_p))
         ws.insert_chart("A17", chart)
-
+        # S波グラフ
         ws.write("A35", "S波")
-        chart = self._create_chart("O2", len(s_folder.df))
+        chart = self._create_chart("O2", len(df_s))
         ws.insert_chart("A36", chart)
 
+        # 選択したデータ
+        sel_df = pd.DataFrame(sheet.page_data.selected.model_dump())
         self._write_sel_df("B58", sel_df)
 
-        ws.insert_image("A64", "", {"image_data": img, "x_scale": 0.4, "y_scale": 0.4})
+        # プロット画像
+        img = self._plot_img(sel_df, df_p, df_s)
+        ws.insert_image(
+            "A64",
+            "plot_image.png",
+            {"image_data": BytesIO(img), "x_scale": 0.4, "y_scale": 0.4},
+        )

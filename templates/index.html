@@ -3,102 +3,118 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>csv_xlsx</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='index.css') }}">
+    <title>csv2xlsx_fastapi</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="{{ url_for('static', path='graph.webp') }}">
-    <link rel="icon" href="{{ url_for('static', path='favicon.ico') }}">
-    <script src="{{ url_for('static', path='index.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist@2.22.0/plotly-basic.min.js"></script>
-    <script src='https://cdn.jsdelivr.net/npm/bignumber.js@9.1.0/bignumber.min.js'></script>
+
+    <link rel="stylesheet" href="file:///E:/program/webapp/csv2xlsx/react_fastapi/static/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-basic-dist-min@2/plotly-basic.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/bignumber.js@9/bignumber.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/idb-keyval@6/dist/umd.js"></script>
 </head>
 
 <body>
-    <h1>plot2xlsx_fastapi</h1>
-    <!--グラフ、データ入力-->
-    <div class="card">
-        <!--グラフブロック-->
-        <div id="graph_block">
-            <div id="graph">
-                <script>
-                    Plotly.newPlot("graph", { layout: { paper_bgcolor: "#eee" }, config: { responsive: true, displayModeBar: false } })
-                </script>
-            </div>
-            <div id="sheet_ctrl" data-page_num="0">
-                <button id="delete" class="button" onclick="deleteSheet()" disabled>シート消去</button>
-                <button id="back" class="button" onclick="backSheet()" disabled>←</button>
-                <span id="indicator_block"><span id="selected_indicator"></span></span>
-                <button id="forward" class="button" onclick="forwardSheet()" disabled>→</button>
-                <button id="add_sheet" class="button" onclick="addSheet()">シート追加</button>
-            </div>
-        </div>
-        <!--データ入力ブロック-->
-        <div>
-            <!--ドロップダウン-->
-            <div class="input_block">
-                <form id="wave_form" name="wave_select" onchange="getData()">
-                    <select id="p_num" name="p_wave_select">
-                        <option selected hidden value="">P波データ</option>
-                        {% for value in csv_dirs_nums %}
-                        <option value="{{ value }}">{{ value }}</option>
-                        {% endfor %}
-                    </select>
-                    <select id="s_num" name="s_wave_select">
-                        <option selected hidden value="">S波データ</option>
-                        {% for value in csv_dirs_nums %}
-                        <option value="{{ value }}">{{ value }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-            <!--供試体高さ-->
-            <div class="input_block">
-                供試体高さ: <input id="spe_height" type="number" oninput="spe_heightOninput(this.value)" required>[cm]
-            </div>
-            <!--P波入力-->
-            <div class="input_block">
-                P init t: <input id="p_init_t" type="number" placeholder="P波の初期補正値" oninput="initOninput(this)"
-                    required>[s]
-                <p>P in t:<span id="p_in_t"></span></p>
-                <p>P out t:<span id="p_out_t"></span></p>
-                <p>P Δt:<span id="p_delta_t"></span></p>
-                <p>P V:<span id="p_v"></span></p>
-            </div>
-            <!--S波入力-->
-            <div class="input_block">
-                S init t: <input id="s_init_t" type="number" placeholder="S波の初期補正値" oninput="initOninput(this)"
-                    required>[s]
-                <p>S in t:<span id="s_in_t"></span></p>
-                <p>S out t:<span id="s_out_t"></span></p>
-                <p>S Δt:<span id="s_delta_t"></span></p>
-                <p>S V:<span id="s_v"></span></p>
-            </div>
-            <!--ポアソン比-->
-            <div class="input_block">
-                ポアソン比:<span id="poi"></span>
-            </div>
-            <!--A1入力-->
-            <div class="input_block">
-                A1: <input id="a1" type="text" placeholder="シートのA1に入れる情報" oninput="a1Oninput(this.value)">
-            </div>
-        </div>
+    <div id="app">
+        <v-app>
+            <v-app-bar>
+                <v-app-bar-title>
+                    csv2xlsx_fastapi
+                </v-app-bar-title>
+            </v-app-bar>
+            <v-main>
+                <!--グラフ、データ入力-->
+                <v-sheet class="mx-10 my-5">
+                    <v-row>
+                        <!--グラフブロック-->
+                        <v-col>
+                            <v-row>
+                                <v-col>
+                                    <div id="graph"></div>
+                                </v-col>
+                            </v-row>
+                            <v-row>
+                                <v-col>
+                                    <div class="d-flex justify-space-between">
+                                        <v-btn id="delete" color="red-accent-2" variant="flat"
+                                            prepend-icon="mdi-file-document-remove" size="x-large" @click="deleteSheet"
+                                            :disabled="disabledDelete()">シート消去</v-btn>
+                                        <span id="indicator_block">
+                                            <button type="button" v-for="n in sheetDataArr.length" :key="n"
+                                                class="indicator" :disabled="n-1 === sheetIndex"
+                                                @click="numpush(n-1)"></button>
+                                        </span>
+                                        <v-btn id="add_sheet" color="teal-lighten-2" variant="flat"
+                                            prepend-icon="mdi-file-document-plus" size="x-large" @click="addSheet"
+                                            :disabled="disabledAdd_sheet()">シート追加</v-btn>
+                                    </div>
+                                </v-col>
+                            </v-row>
+                        </v-col>
+                        <!--データ入力ブロック-->
+                        <v-col>
+                            <!--ドロップダウン-->
+                            <v-row dense>
+                                <v-col cols="6">
+                                    <v-select label="P波データ" :items="['0002','0004']" :model-value="sheetData.num.p"
+                                        @update:model-value="changeNum($event, 'p')" variant="outlined"></v-select>
+                                </v-col>
+                                <v-col cols="6">
+                                    <v-select label="S波データ" :items="['0002','0004']" :model-value="sheetData.num.s"
+                                        @update:model-value="changeNum($event, 's')" variant="outlined"></v-select>
+                                </v-col>
+                            </v-row>
+                            <!--供試体高さ-->
+                            <v-text-field class="mb-2" label="供試体高さ" type="number" suffix="[cm]" variant="outlined"
+                                :rules="[textRequired]" v-model="sheetData.selected.spe_height"
+                                @update:model-value="spe_heightInput"></v-text-field>
+                            <!--P波入力-->
+                            <div class="mb-5">
+                                <v-text-field class="mb-2" label="P波の初期補正値" type="number" suffix="[s]"
+                                    variant="outlined" :rules="[textRequired]" v-model="sheetData.selected.init_t.p"
+                                    @update:model-value="init_tInput('p')"></v-text-field>
+                                <p>P in t: <span v-text="makePrefix(sheetData.selected.in_t.p)"></span></p>
+                                <p>P out t: <span v-text="makePrefix(sheetData.selected.out_t.p)"></span></p>
+                                <p>P Δt: <span v-text="makePrefix(sheetData.selected.delta_t.p)"></span></p>
+                                <p>P V: <span v-text="makePrefix(sheetData.selected.v.p, 'm/s')"></span></p>
+                            </div>
+                            <!--S波入力-->
+                            <div class="mb-5">
+                                <v-text-field class="mb-2" label="S波の初期補正値" type="number" suffix="[s]"
+                                    variant="outlined" :rules="[textRequired]" v-model="sheetData.selected.init_t.s"
+                                    @update:model-value="init_tInput('s')"></v-text-field>
+                                <p>S in t: <span v-text="makePrefix(sheetData.selected.in_t.s)"></span></p>
+                                <p>S out t: <span v-text="makePrefix(sheetData.selected.out_t.s)"></span></p>
+                                <p>S Δt: <span v-text="makePrefix(sheetData.selected.delta_t.s)"></span></p>
+                                <p>S V: <span v-text="makePrefix(sheetData.selected.v.s, 'm/s')"></span></p>
+                            </div>
+                            <!--ポアソン比-->
+                            <div class="mb-5">
+                                ポアソン比: <span v-text="sheetData.selected.poi"></span>
+                            </div>
+                            <!--A1入力-->
+                            <v-text-field label="シートのA1に入れる情報" variant="outlined" hide-details="true"
+                                v-model="sheetData.a1"></v-text-field>
+                            <hr class="my-5">
+                            <!--ファイル名、保存ボタン-->
+                            <div class=" d-flex justify-space-between">
+                                <v-text-field id="save_file_name" label="保存ファイル名" type="text" suffix=".xlsx"
+                                    variant="outlined" :rules="[textRequired]"></v-text-field>
+                                <v-btn class="ml-2" color="teal-lighten-2" variant="flat" prepend-icon="mdi-download"
+                                    size="x-large" @click="saveXlsx" :loading="isSavePushed">保存</v-btn>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-sheet>
+            </v-main>
+        </v-app>
     </div>
-    <br>
-    <!--ファイル名、保存ボタン-->
-    <div id="save_card" class="card">
-        <form id="save_form" onsubmit="saveButton(); return false">
-            ファイル名:
-            <input id="save_file_name" type="text" required>
-            .xlsx
-            <div id="save">
-                <button class="button">保存</button>
-                <div id="waiting_anim" class="waiting"></div>
-            </div>
-        </form>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.js"></script>
+    <script src="file:///E:/program/webapp/csv2xlsx/react_fastapi/static/index.js"></script>
 </body>
 
 </html>
