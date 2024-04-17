@@ -1,5 +1,5 @@
 # plot2xlsx_fastapi
-これは[plot2xlsx_dash](https://github.com/zbwtk/plot2xlsx_dash)をFastAPIとjavascriptで再構築したものです。
+これは[plot2xlsx_dash](https://github.com/ryozitaro/plot2xlsx_dash)をFastAPIとjavascriptで再構築したものです。
 ***
 
 ## 必要なもの
