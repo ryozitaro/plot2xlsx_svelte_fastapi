@@ -1,0 +1,5 @@
+src = ["src"]
+
+[lint.isort]
+combine-as-imports = true
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

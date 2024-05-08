@@ -1,12 +1,14 @@
-FROM node:18.17-slim
+FROM node:20-bookworm-slim
 
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
 
-EXPOSE 50128
+EXPOSE 3000
 
 WORKDIR /app
 
-COPY ./frontend/app/csv2xlsx/package.json /app
+COPY ./app/package*.json .
 
 RUN npm install
+
+ENTRYPOINT [ "npm", "run", "dev" ]

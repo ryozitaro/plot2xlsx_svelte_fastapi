@@ -1,15 +1,23 @@
-FROM python:3.11
+FROM python:3.12-slim-bookworm
 
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
 
-EXPOSE 50512
+EXPOSE 8000
 
-COPY ./backend/app/requirements.txt requirements.txt
-RUN pip install -r requirements.txt
-
-COPY ./backend/app /app
+ENV PATH /root/.local/bin:$PATH
 
 WORKDIR /app
 
-ENTRYPOINT [ "uvicorn", "main:app", "--reload" ]
+COPY ./app/poetry.lock ./
+COPY ./app/pyproject.toml ./
+
+RUN apt-get update \
+    && apt-get install -y curl \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && poetry config virtualenvs.create false \
+    && poetry install
+
+WORKDIR /app/src
+
+ENTRYPOINT [ "python", "main.py" ]

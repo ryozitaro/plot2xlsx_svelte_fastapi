@@ -1,1 +1,4 @@
 __pycache__
+data.sqlite3
+.next
+node_modules

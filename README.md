@@ -1,17 +1,16 @@
 # plot2xlsx_fastapi
-これは[plot2xlsx_dash](https://github.com/zbwtk/plot2xlsx_dash)をFastAPIとjavascriptで再構築したものです。
-***
+
+これは [plot2xlsx_dash](https://github.com/ryozitaro/plot2xlsx_dash) を FastAPI と typescript で再構築して、一部改変したものです。シートを表すドットがクリックできるようになってます。シート数は最大 5 です。
 
 ## 必要なもの
-Python 3.8+  
-fastapi, uvicorn, pandas, xlsxwriter, plotly, kaleido
+
+FastAPI 実行側で xlsx を書き出す際に BIZ UDPGothic フォントが必要です。
 
 ## 実行
-```
-python main.py
-```
-![1](https://user-images.githubusercontent.com/126104168/236733563-154903f8-af6f-4abc-a179-367f719a308f.png)
 
-***
+```
+docker compose up
+```
 
-HTMLの要素を書き換えするために全てのDOM操作を書いていたり、まだjavascript始めたてなこともあって、現状ちょっと見辛いjavascriptになってるかもしれません。
+確認する  
+[localhost:3000](http://localhost:3000)

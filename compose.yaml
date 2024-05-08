@@ -1,23 +1,36 @@
 services:
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./backend/app
+        target: /app
 
   frontend:
     container_name: frontend
     build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "50128:50128"
+      - "3000:3000"
     volumes:
-      - ./frontend/app:/app
-    tty: true
+      - type: bind
+        source: ./frontend/app
+        target: /app
+      - type: volume
+        source: node_modules
+        target: /app/node_modules
+      - type: volume
+        source: .next
+        target: /app/.next
+    depends_on:
+      - backend
 
-  backend:
-    container_name: backend
-    build:
-      context: .
-      dockerfile: ./backend/Dockerfile
-    ports:
-      - "50512:50512"
-    volumes:
-      - ./backend/app:/app
-    tty: true
+volumes:
+  .next:
+  node_modules:
