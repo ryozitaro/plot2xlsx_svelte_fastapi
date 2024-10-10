@@ -204,10 +204,11 @@ class XlsxOut:
 
         return self.fig.to_image(format="png", width=1440, height=960)
 
-    def to_df(self, json: str) -> pd.DataFrame:
-        data_dict = JsonData.model_validate_json(json)
-        data = data_dict.voltages
-        return pd.DataFrame(data[0] | data[1], index=data_dict.time)
+    def to_df(self, json: JsonData) -> pd.DataFrame:
+        data = json.voltages
+        return pd.DataFrame(
+            {volt_obj.name: volt_obj.voltage for volt_obj in data}, index=json.time
+        )
 
     def sheet_write(self, sheet: SheetDBData) -> None:
         self.ws = self.wb.add_worksheet()

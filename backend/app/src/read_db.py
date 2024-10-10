@@ -1,17 +1,22 @@
-import orjson
 from sqlalchemy import case, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from model_wavedata import WaveData
 from schema_sheetdata import PS, DBData, SheetData
+from types_json_data import JsonData
 
 
-async def get_all_json_data(db: AsyncSession):
+async def get_nums(db: AsyncSession):
+    result = await db.scalars(select(WaveData.num))
+    return result.all()
+
+
+async def get_select_num_data(db: AsyncSession, num: str):
     result = await db.execute(
-        select(WaveData.num, WaveData.json_data).order_by(WaveData.num)
+        select(WaveData.num, WaveData.json_data).where(WaveData.num == num)
     )
-    data = result.all()
-    return {row.num: orjson.loads(row.json_data) for row in data}
+    data = result.one()
+    return data
 
 
 async def get_sheet_db_data(db: AsyncSession, sheet_data: SheetData):
@@ -23,6 +28,6 @@ async def get_sheet_db_data(db: AsyncSession, sheet_data: SheetData):
     )
     p, s = result.all()
     return DBData(
-        json_data=PS[str](p=p.json_data, s=s.json_data),
+        json_data=PS[JsonData](p=p.json_data, s=s.json_data),
         img_path=PS[str](p=p.img_path, s=s.img_path),
     )

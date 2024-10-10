@@ -1,9 +1,9 @@
-FROM node:20-bookworm-slim
+FROM node:22-bookworm-slim
 
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
 
-EXPOSE 3000
+EXPOSE 5173
 
 WORKDIR /app
 

@@ -17,7 +17,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "5173:5173"
     volumes:
       - type: bind
         source: ./frontend/app
@@ -26,11 +26,11 @@ services:
         source: node_modules
         target: /app/node_modules
       - type: volume
-        source: .next
-        target: /app/.next
+        source: .svelte-kit
+        target: /app/.svelte-kit
     depends_on:
       - backend
 
 volumes:
-  .next:
+  .svelte-kit:
   node_modules:

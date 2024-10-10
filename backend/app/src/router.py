@@ -1,27 +1,33 @@
 from io import BytesIO
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import ORJSONResponse, Response
+from fastapi.responses import JSONResponse, Response
 from plotly.io import read_json
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from const_path import WORK_DIR
 from db import get_db
-from read_db import get_all_json_data, get_sheet_db_data
+from read_db import get_nums, get_select_num_data, get_sheet_db_data
 from schema_sheetdata import SheetData, SheetDBData
 from types_json_data import JsonData
-from const_path import WORK_DIR
 from xlsx.xlsxout import XlsxOut
 
 router = APIRouter()
 
-fig = read_json(WORK_DIR / "plotly_figure.json", engine="orjson")
+fig = read_json(WORK_DIR / "plotly_figure.json")
 
 
-@router.get(
-    "/ps_data", response_class=ORJSONResponse, response_model=dict[str, JsonData]
-)
-async def send_wave_data(db: AsyncSession = Depends(get_db)):
-    return await get_all_json_data(db)
+@router.get("/wave_nums", response_class=JSONResponse, response_model=list[str])
+async def send_wave_nums(db: AsyncSession = Depends(get_db)):
+    data = await get_nums(db)
+    return data
+
+
+@router.get("/wave_data", response_class=JSONResponse, response_model=JsonData)
+async def send_wave_data(num: str, db: AsyncSession = Depends(get_db)):
+    data = await get_select_num_data(db, num)
+    headers = {"Cache-Control": "max-age=600"}
+    return JSONResponse(data.json_data, headers=headers)
 
 
 @router.post("/convert_xlsx", response_class=Response)

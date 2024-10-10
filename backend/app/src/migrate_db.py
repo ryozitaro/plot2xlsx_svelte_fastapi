@@ -3,10 +3,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from db import Base, engine, Session
-from model_wavedata import WaveData
-from types_json_data import JsonData
 from const_path import WORK_DIR
+from db import Base, Session, engine
+from model_wavedata import WaveData
+from types_json_data import JsonData, Voltages
 
 DATA_DIR_PATH = WORK_DIR / "data"
 
@@ -36,9 +36,11 @@ async def add_data_table():
             df = df[0].join(df[1])
             json_data = JsonData(
                 time=df.index.to_list(),
-                voltages=[{col: df[col].tolist()} for col in df.columns],
+                voltages=[
+                    Voltages(name=col, voltage=df[col].tolist()) for col in df.columns
+                ],
             )
-            json_dump = json_data.model_dump_json()
+            json_dump = json_data.model_dump()
             session.add(
                 WaveData(num=num, json_data=json_dump, img_path=str(img_path.resolve()))
             )

@@ -1,6 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
+from types_json_data import JsonData
+
 
 class PS[T](BaseModel):
     p: T
@@ -10,13 +12,13 @@ class PS[T](BaseModel):
 class DetailsData(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
 
-    spe_height: float
-    init_t: PS[float]
-    in_t: PS[float]
-    out_t: PS[float]
-    delta_t: PS[float]
-    v: PS[float]
-    poi: float | str
+    spe_height: str
+    init_t: PS[str]
+    in_t: PS[str]
+    out_t: PS[str]
+    delta_t: PS[str]
+    v: PS[str]
+    poi: str
 
 
 class SheetData(BaseModel):
@@ -26,7 +28,7 @@ class SheetData(BaseModel):
 
 
 class DBData(BaseModel):
-    json_data: PS[str]
+    json_data: PS[JsonData]
     img_path: PS[str]
 
 
